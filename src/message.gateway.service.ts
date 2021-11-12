@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import {
   MessageBody,
   SubscribeMessage,
@@ -10,8 +11,14 @@ import { WebSocketClientResponse } from './web-socket-client-response';
 export class MessageGatewayService {
   @WebSocketServer() server;
 
+  private readonly logger = new Logger(MessageGatewayService.name);
+
   @SubscribeMessage('response')
   handleMessage(@MessageBody() response: WebSocketClientResponse) {
-    this.server.emit('response', response);
+    try {
+      this.server.emit('response', response);
+    } catch (ex) {
+      this.logger.error(ex);
+    }
   }
 }
